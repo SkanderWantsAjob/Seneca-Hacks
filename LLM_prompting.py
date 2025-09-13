@@ -3,6 +3,11 @@ import os
 from dotenv import load_dotenv
 import json
 
+
+with open("validation.json" , "r") as f:
+    data= json.load(f)
+    
+
 load_dotenv()
 api_key = os.getenv("GROQ_API")
 
@@ -22,31 +27,56 @@ completion = client.chat.completions.create(
     messages=[
         {
             "role": "system",
-            "content": """You are a data analysis assistant. You are given a sequential list of text phrases with timestamps or indices. Your task is:
+            "content": """You are a data analysis assistant. You are given a dataset in the following structure:
 
-1. Identify only the most interesting intervals — periods where something truly notable happens, such as sudden excitement, unusual events, spikes in sentiment, or key phrases. Ignore trivial or repetitive text.
-2. For each interval, provide a concise explanation of why it is interesting, referring to the content or context.
-3. Provide the start and end indices or timestamps of the interval.
-4. Stop the interval when the notable event semantically ends, not arbitrarily.
-5. Output strictly as JSON with the format:
+{
+  "ID_1": {
+    "duration": <float_seconds>,
+    "timestamps": [[start_1, end_1], [start_2, end_2], ...],
+    "sentences": ["sentence 1", "sentence 2", ...]
+  },
+  ...
+}
 
-{{ "intervals": [
-    {{
-        "start": "timestamp_or_index",
-        "end": "timestamp_or_index",
-        "reason": "Why this interval is interesting"
-    }}
-]}}
+Your task:
 
-If no interesting interval exists, return:
+1. For each ID, identify **only the most interesting intervals** — THIS IS VERY IMPORTANT, we only need periods where important events in league of legends(the moba game) especially when there is important deaths or kills or teamfights that are crucial or highlight worthy"
+2. For each interesting interval, provide:
+   - `"start"` and `"end"`: the timestamp range of the interval (in seconds),
+   - `"reason"`: a concise explanation of why this interval is notable (referencing the sentence content if relevant).
+3. DONT give too much intervals only keep the most important parts, where there is player mistakes and/or deaths
+4. Output strictly as JSON in the following format:
 
-{{ "intervals": [] }}
+{
+  "ID_1": {
+    "intervals": [
+      {
+        "start": <start_time_in_seconds>,
+        "end": <end_time_in_seconds>,
+        "reason": "<concise_reason_text>"
+      },
+      ...
+    ]
+  },
+  "ID_2": {
+    "intervals": [...]
+  },
+  ...
+}
 
-Avoid any commentary or chit-chat outside JSON."""
+5. If no interesting interval exists for an ID, return an empty list for `"intervals"`:
+
+{
+  "intervals": []
+}
+
+6. LIMIT YOURSELF TO ONLY 7 intervals
+7. Prioritize intervals that are **semantically significant or striking** based on content or sentence importance.
+"""
         },
         {
             "role": "user",
-            "content": f"Analyze the following sequential phrases:\n{data_str}"
+            "content": f"Analyze the following sequential phrases:\n{data}"
         }
     ],
     temperature=0,
@@ -54,5 +84,5 @@ Avoid any commentary or chit-chat outside JSON."""
     stream=False
 )
 
-result = json.loads(completion.choices[0].message.content)
+result = completion.choices[0].message.content #json.loads()
 print(result)
