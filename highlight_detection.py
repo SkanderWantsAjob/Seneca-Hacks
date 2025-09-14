@@ -3,8 +3,8 @@ import os
 from dotenv import load_dotenv
 import json
 
+import re
 
-#aaaaaaaaaaaaaaaaaaa333333333
 def parse_json_from_string(s: str):
     start = s.find("{")
     end = s.rfind("}") + 1  # include last '}'
@@ -37,19 +37,21 @@ class HighlightDetector:
         """
         prompt = """You are a data analysis assistant. You are given a dataset in the following structure:
 
-                    
+                    [
                         {
                             "text": <caption_text>,
                             "start": <float_seconds>,
                             "end": <float_seconds>
                         },
-
+                    ]
                 Your task:
 
-                1. We only need periods where important events in this league of legends(the moba game) official Match.
+                1.this is a league of legends(the moba game) official Match.
                 Identify only the most interesting intervals where highlight worthy moments happen — THIS IS VERY IMPORTANT,
                 We want something Spectators want to see, something with action.
+                don't be too picky or too broad.
                 Important events are such as:
+                    players making errors and dying
                     the start of Impressive plays
                     the start of important deaths or kills
                     teamfights that are crucial and/or ACES (when the whole team is wiped out)
@@ -60,30 +62,33 @@ class HighlightDetector:
                     backing to base
                     doing objectives that are not contested
                     discussing strategy
-                DO NOT discuss the meta, item builds, or strategies THEY ARE NOT RELEVANT
+                    anticlimactic fights
+                    minor skirmishes that don't lead to significant outcomes
+                DONT consider Analytics please and DONT consider events that are just setting up for a fight or potential action, Only consider the actual action.
                 2. For each interesting interval, provide:
                 - `"start"` and `"end"`: the timestamp range of the interval (in seconds),
                 - `"reason"`: a concise explanation of why this interval is notable (referencing the sentence content if relevant).
-                3. DONT give too much intervals only keep the most important parts, where there is player mistakes and/or deaths
-                4. Output strictly as JSON in the following format:
+                4. Output strictly AND ONLY as JSON in the following format:
                 {
                     "intervals": [
                     {
                         "start": <start_time_in_seconds>,
                         "end": <end_time_in_seconds>,
                         "reason": "<concise_reason_text>"
-                    },
-                    ...
+                    }
                     ]
                 }
+                5.if there is multiple interesting events close to each other, take only the last event.
+                6.if There is a death we want to see a bit before the death.
 
-                5. If no interesting interval , return an empty list for `"intervals"`:
+                7. If no interesting interval , return an empty list for `"intervals"`:
 
                 {
                 "intervals": []
                 }
 
-                6. Prioritize intervals that are **semantically significant or striking** based on content or sentence importance.
+                8. Prioritize intervals that are **semantically significant or striking** based on content or sentence importance.
+                9. no more than 25 seconds per highlight and at least 10 seconds.
                 """
 
         completion = client.chat.completions.create(
@@ -98,7 +103,8 @@ class HighlightDetector:
             ],
             temperature=0,
             top_p=1,
-            stream=False
+            stream=False,
+            response_format={"type": "json_object"}
         )
 
         content = parse_json_from_string(completion.choices[0].message.content)

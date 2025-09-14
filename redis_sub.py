@@ -21,9 +21,11 @@ for message in pubsub.listen():
 
         if isinstance(highlights_json, str):
             highlights_json = json.loads(highlights_json)
+            print("\033[91mWarning: Parsed highlights_json from string\033[0m")
         
         if len(highlights_json["intervals"]) == 0:
-            print("\033[95mNo highlights detected in this batch.\033[0m")
+            print("\033[95mNo highlights detected in this batch")
+            print(highlights_json, "\033[0m")
             continue
             
         print("\033[94mDetected highlights:", highlights_json, "\033[0m")

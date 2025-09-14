@@ -16,13 +16,13 @@ class VideoCutter:
 
         for interval in intervals:
             self.clip_index += 1
-            start_time = max(0, interval["start"] - 5)
-            end_time = interval["end"] + 2
+            start_time = max(0, interval["start"] - 7 )
+            end_time = interval["end"] - 5
             duration = end_time - start_time
             
 
-            start_min, start_sec = divmod(int(interval["start"] - 5), 60)
-            end_min, end_sec = divmod(int(interval["end"] + 2), 60)
+            start_min, start_sec = divmod(int(start_time), 60)
+            end_min, end_sec = divmod(int(end_time), 60)
 
             output_file = os.path.join(
                 self.output_dir,
@@ -39,17 +39,17 @@ class VideoCutter:
         # ]
 
             cmd = [
-            "ffmpeg", "-y", "-loglevel", "error",
-            "-ss", str(start_time),
-            "-i", self.video_path,
-            "-t", str(duration),
-            "-c:v", "libx264",
-            "-c:a", "aac",
-            "-b:a", "128k",      # force audio bitrate
-            "-ac", "2",           # stereo
-            "-map", "0",          # include all streams
-            output_file
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-i", self.video_path,     # input first
+                "-ss", str(start_time),    # then seek
+                "-t", str(duration),
+                "-c:v", "libx264",
+                "-c:a", "aac",
+                "-b:a", "128k",
+                "-ac", "2",
+                output_file
             ]
+
 
 
             print(f"\033[93mCreating clip {self.clip_index}: {start_min:02d}:{start_sec:02d}s → {end_min:02d}:{end_sec:02d}s\033[0m")
