@@ -13,10 +13,9 @@ print("Listening for captions...")
 for message in pubsub.listen():
     if message["type"] == "message":
         data = json.loads(message["data"])
+        print("Received batch:", data)
         detector = HighlightDetector()
         highlights_json = detector.detect_highlights(data)
-        
-        
 
 
         if isinstance(highlights_json, str):
@@ -29,7 +28,7 @@ for message in pubsub.listen():
             continue
             
         print("\033[94mDetected highlights:", highlights_json, "\033[0m")
-        video_cutter = VideoCutter("video.mp4")
+        video_cutter = VideoCutter("https://www.youtube.com/watch?v=wJDv-DhCfHk")
         video_cutter.cut_intervals(highlights_json)
 
     

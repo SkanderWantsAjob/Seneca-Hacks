@@ -1,12 +1,22 @@
 import os
 import subprocess
 
+def resolve_url(video_path):
+    if video_path.startswith("http"):
+        # Use yt-dlp to get direct URL
+        direct_url = subprocess.check_output(
+            ["yt-dlp", "-g", video_path], text=True
+        ).strip()
+        return direct_url
+    return video_path
 class VideoCutter:
     def __init__(self, video_path, output_dir="clips"):
-        self.video_path = video_path
+        self.video_path = resolve_url(video_path)
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
         self.clip_index = 1  # keep count across multiple calls
+
+
 
     def cut_intervals(self, entry):
         # entry is a dict like {'intervals': [...]}

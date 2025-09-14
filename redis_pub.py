@@ -1,4 +1,4 @@
-import wave
+import subprocess
 import json
 import redis
 import os
@@ -13,13 +13,21 @@ model = Model(os.getenv("VOSK_MODEL_PATH"))
 rec = KaldiRecognizer(model, 16000)
 rec.SetWords(True)
 
-# Open audio file (could also be live stream)
-wf = wave.open("test.wav", "rb")
+# Command to get audio from YouTube link (replace URL with user input)
+url = "https://www.youtube.com/watch?v=wJDv-DhCfHk"
+cmd = [
+    "yt-dlp", "-o", "-", url,
+    "|", "ffmpeg", "-i", "pipe:0",
+    "-ar", "16000", "-ac", "1", "-f", "s16le", "pipe:1"
+]
+
+# Run pipeline
+proc = subprocess.Popen(" ".join(cmd), shell=True, stdout=subprocess.PIPE)
 
 first_start_time = 0.0
 batch = []
 while True:
-    data = wf.readframes(4000)
+    data = proc.stdout.read(4000)
     if len(data) == 0:
         break
 
