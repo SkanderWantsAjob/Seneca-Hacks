@@ -2,6 +2,7 @@ import redis
 import json
 
 from highlight_detection import HighlightDetector
+from highlight_maker import VideoCutter;
 
 r = redis.Redis(host="localhost", port=6379, db=0)
 pubsub = r.pubsub()
@@ -14,4 +15,19 @@ for message in pubsub.listen():
         data = json.loads(message["data"])
         detector = HighlightDetector()
         highlights_json = detector.detect_highlights(data)
-        print(highlights_json)
+        
+        
+
+
+        if isinstance(highlights_json, str):
+            highlights_json = json.loads(highlights_json)
+        
+        if len(highlights_json["intervals"]) == 0:
+            print("\033[95mNo highlights detected in this batch.\033[0m")
+            continue
+            
+        print("\033[94mDetected highlights:", highlights_json, "\033[0m")
+        video_cutter = VideoCutter("video.mp4")
+        video_cutter.cut_intervals(highlights_json)
+
+    

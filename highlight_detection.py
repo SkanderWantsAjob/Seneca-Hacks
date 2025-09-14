@@ -46,8 +46,21 @@ class HighlightDetector:
 
                 Your task:
 
-                1. Identify only the most interesting intervals — THIS IS VERY IMPORTANT,
-                we only need periods where important events in league of legends(the moba game) especially when there is important deaths or kills or teamfights that are crucial or highlight worthy"
+                1. We only need periods where important events in this league of legends(the moba game) official Match.
+                Identify only the most interesting intervals where highlight worthy moments happen — THIS IS VERY IMPORTANT,
+                We want something Spectators want to see, something with action.
+                Important events are such as:
+                    the start of Impressive plays
+                    the start of important deaths or kills
+                    teamfights that are crucial and/or ACES (when the whole team is wiped out)
+                    stealing objectives from the other team( dragon/baron/elder/herald/voidgrubs)
+                DO NOT consider events like:
+                    farming
+                    taking jungle camps
+                    backing to base
+                    doing objectives that are not contested
+                    discussing strategy
+                DO NOT discuss the meta, item builds, or strategies THEY ARE NOT RELEVANT
                 2. For each interesting interval, provide:
                 - `"start"` and `"end"`: the timestamp range of the interval (in seconds),
                 - `"reason"`: a concise explanation of why this interval is notable (referencing the sentence content if relevant).
@@ -89,5 +102,5 @@ class HighlightDetector:
         )
 
         content = parse_json_from_string(completion.choices[0].message.content)
-        return content  
+        return content
 
