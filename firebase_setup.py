@@ -4,7 +4,8 @@ from firebase_admin import credentials, auth
 
 # Initialize Firebase Admin SDK once
 try:
-    cred = credentials.Certificate("path/to/your/service-account.json")
+    # firebase_setup.py
+    cred = credentials.Certificate("C:/Users/neire/OneDrive/Documents/Seneca-Hacks/seneca-95937-firebase-adminsdk-fbsvc-e560fe24c9.json")
     firebase_admin.initialize_app(cred)
 except ValueError:
     # App is already initialized

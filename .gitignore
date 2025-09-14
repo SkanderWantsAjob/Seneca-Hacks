@@ -139,3 +139,6 @@ data/processed/*
 *.parquet
 *.pkl
 *.joblib
+vitualenv/*
+C:/Users/neire/OneDrive/Documents/Seneca-Hacks/seneca-95937-firebase-adminsdk-fbsvc-e560fe24c9.json
+ingestion_layer/*

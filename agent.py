@@ -35,9 +35,8 @@ async def process_user(publishing_agent, user_id):
 
 async def agent_loop():
     """Main loop: fetch all premium users and process them."""
-    # 🔑 Use DeepSeek via OpenRouter
     llm = ChatOpenAI(
-        model="deepseek/deepseek-chat",
+        model="deepseek/deepseek-chat-v3.1:free",
         temperature=0.3,
         openai_api_base="https://openrouter.ai/api/v1",
         openai_api_key=os.getenv("OPENROUTER_API_KEY"),
