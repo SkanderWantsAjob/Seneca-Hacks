@@ -5,9 +5,6 @@ import json
 
 
 #aaaaaaaaaaaaaaaaaaa333333333
-with open("validation.json" , "r") as f:
-    data= json.load(f)
-    
 def parse_json_from_string(s: str):
     start = s.find("{")
     end = s.rfind("}") + 1  # include last '}'
@@ -40,14 +37,12 @@ class HighlightDetector:
         """
         prompt = """You are a data analysis assistant. You are given a dataset in the following structure:
 
-                    {
-                    "ID_1": {
-                        "duration": <float_seconds>,
-                        "timestamps": [[start_1, end_1], [start_2, end_2], ...],
-                        "sentences": ["sentence 1", "sentence 2", ...]
-                    },
-                    ...
-                    }
+                    
+                        {
+                            "text": <caption_text>,
+                            "start": <float_seconds>,
+                            "end": <float_seconds>
+                        },
 
                 Your task:
 
@@ -96,11 +91,3 @@ class HighlightDetector:
         content = parse_json_from_string(completion.choices[0].message.content)
         return content  
 
-def main():
-    print("Pipeline starting...")
-    detector = HighlightDetector()
-    highlights_json = detector.detect_highlights(data)
-    print(highlights_json)
-
-if __name__ == "__main__":
-    main()
